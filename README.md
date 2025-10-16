@@ -18,4 +18,6 @@ MovieFinder is a React-based web app that allows users to search for movies and 
    ```bash
    git clone https://github.com/<your-username>/moviefinder.git
    cd moviefinder
-https://moviefinder-weld.vercel.app/
+## Live Demo
+
+Check out the deployed app here: [MovieFinder on Vercel](https://your-vercel-link.vercel.app)
