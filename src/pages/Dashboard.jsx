@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import Spinner from "../components/Spinner";
 
 function Dashboard() {
   const [query, setQuery] = useState("");
@@ -14,9 +15,9 @@ function Dashboard() {
 
     try {
       const response = await fetch(
-        `https://www.omdbapi.com/?apikey=${import.meta.env.VITE_OMDB_API_KEY}&s=${encodeURIComponent(
-          query
-        )}`
+        `https://www.omdbapi.com/?apikey=${
+          import.meta.env.VITE_OMDB_API_KEY
+        }&s=${encodeURIComponent(query)}`
       );
       const data = await response.json();
 
@@ -24,7 +25,7 @@ function Dashboard() {
         setMovies(data.Search);
       } else {
         setMovies([]);
-        setError(data.Error || "No results");
+        setError(data.Error || "No results found.");
       }
     } catch (err) {
       console.error(err);
@@ -48,7 +49,9 @@ function Dashboard() {
             placeholder="Enter movie name..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") fetchMovies(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") fetchMovies();
+            }}
             aria-label="Search movies"
           />
           <button
@@ -61,23 +64,36 @@ function Dashboard() {
 
         {/* Results */}
         <div>
-          {loading && <p className="text-center py-8">Loading...</p>}
-          {error && !loading && (
-            <p className="text-center text-red-500 py-8">{error}</p>
-          )}
-          {!loading && !error && movies.length === 0 && (
-            <p className="text-center text-gray-600 py-8">No results yet — try searching for "Batman".</p>
+          {loading && (
+            <div className="py-8">
+              <Spinner size={48} />
+            </div>
           )}
 
+          {error && <p className="text-center text-red-500 py-8">{error}</p>}
+
+          {!loading && !error && movies.length === 0 && query && (
+            <p className="text-center text-gray-600">
+              No results for "{query}"
+            </p>
+          )}
+
+          {!loading && !error && movies.length === 0 && !query && (
+            <p className="text-center text-gray-600 py-8">
+              No results yet — try searching for "Batman".
+            </p>
+          )}
+
+          {/* Movie Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {movies.map((movie) => (
               <Link
                 key={movie.imdbID}
                 to={`/movie/${movie.imdbID}`}
-                state={{ fromQuery: query }} /* optional: preserve search */
-                className="block bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+                state={{ fromQuery: query }}
+                className="block bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition transform hover:-translate-y-1 hover:scale-[1.02]"
               >
-                <div className="w-full h-80 bg-gray-100 flex items-center justify-center">
+                <div className="w-full h-64 md:h-80 bg-gray-100 flex items-center justify-center">
                   <img
                     src={movie.Poster !== "N/A" ? movie.Poster : "/placeholder.png"}
                     alt={movie.Title}
